@@ -5,6 +5,7 @@ import axios from '../../../axios';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
+import { connect } from 'react-redux';
 
 class ContactData extends Component {
   state = {
@@ -91,9 +92,7 @@ class ContactData extends Component {
     },
     orderFormValid: false,
     loading: false,
-    ordered: false,
-    ingredients: this.props.location.state.ingredients,
-    totalPrice: this.props.location.state.totalPrice
+    ordered: false
   };
 
   orderHandler = e => {
@@ -101,8 +100,8 @@ class ContactData extends Component {
     this.setState({ loading: true, ordered: false });
 
     const order = {
-      ingredients: this.props.location.state.ingredients,
-      price: this.props.location.state.totalPrice,
+      ingredients: this.props.ingredients,
+      price: this.props.totalPrice,
       customer: {
         name: this.state.orderForm.name.value,
         address: {
@@ -118,7 +117,6 @@ class ContactData extends Component {
     axios
       .post('/orders.json', order)
       .then(response => {
-        console.log(response);
         this.setState({ loading: false, ordered: true });
       })
       .catch(_ => this.setState({ loading: false, ordered: false }));
@@ -210,4 +208,14 @@ class ContactData extends Component {
   }
 }
 
-export default withErrorHandler(ContactData, axios);
+const mapStateToProps = state => {
+  return {
+    ingredients: state.ingredients,
+    totalPrice: state.totalPrice
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  null
+)(withErrorHandler(ContactData, axios));
