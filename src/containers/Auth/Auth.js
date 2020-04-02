@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
 import classes from './Auth.module.css';
 import { connect } from 'react-redux';
 import { auth } from '../../store/actions';
+import Spinner from '../../components/UI/Spinner/Spinner';
 
 export class Auth extends Component {
   state = {
@@ -35,7 +36,8 @@ export class Auth extends Component {
         isValid: false,
         touched: false
       }
-    }
+    },
+    isSignUp: true
   };
   inputHandler = event => {
     const updatedControls = { ...this.state.controls };
@@ -76,7 +78,14 @@ export class Auth extends Component {
     event.preventDefault();
     const email = this.state.controls.email.value;
     const password = this.state.controls.password.value;
-    this.props.onAuth(email, password);
+    const method = this.state.isSignUp ? 'SIGNUP' : 'SIGNIN';
+    this.props.onAuth(email, password, method);
+  };
+
+  switchAuthMode = () => {
+    this.setState(prevState => {
+      return { isSignUp: !prevState.isSignUp };
+    });
   };
 
   render() {
@@ -106,10 +115,19 @@ export class Auth extends Component {
     }
     return (
       <div className={classes.Form}>
-        <form onSubmit={this.authHandler}>
-          {inputs}
-          <Button BtnType="Success">Submit</Button>
-        </form>
+        {this.props.loading ? (
+          <Spinner />
+        ) : (
+          <Fragment>
+            <form onSubmit={this.authHandler}>
+              {inputs}
+              <Button BtnType="Success">Submit</Button>
+            </form>
+            <Button clicked={this.switchAuthMode} BtnType="Danger">
+              SWITCH TO {this.state.isSignUp ? 'SIGNIN' : 'SIGNUP'}
+            </Button>
+          </Fragment>
+        )}
       </div>
     );
   }
@@ -117,8 +135,14 @@ export class Auth extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onAuth: (email, password) => dispatch(auth(email, password))
+    onAuth: (email, password, method) => dispatch(auth(email, password, method))
   };
 };
 
-export default connect(null, mapDispatchToProps)(Auth);
+const mapStateToProps = state => {
+  return {
+    loading: state.auth.loading
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Auth);
