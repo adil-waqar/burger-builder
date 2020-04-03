@@ -5,6 +5,7 @@ import classes from './Auth.module.css';
 import { connect } from 'react-redux';
 import { auth } from '../../store/actions';
 import Spinner from '../../components/UI/Spinner/Spinner';
+import { Redirect } from 'react-router-dom';
 
 export class Auth extends Component {
   state = {
@@ -113,8 +114,16 @@ export class Auth extends Component {
         />
       );
     }
+
+    let errorMessage = null;
+    if (this.props.error) {
+      errorMessage = <p>{this.props.error.message}</p>;
+    }
+
     return (
       <div className={classes.Form}>
+        {errorMessage}
+        {this.props.isAuthenticaed ? <Redirect to="/" /> : null}
         {this.props.loading ? (
           <Spinner />
         ) : (
@@ -141,7 +150,9 @@ const mapDispatchToProps = dispatch => {
 
 const mapStateToProps = state => {
   return {
-    loading: state.auth.loading
+    loading: state.auth.loading,
+    error: state.auth.error,
+    isAuthenticaed: state.auth.token !== null
   };
 };
 

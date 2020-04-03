@@ -22,6 +22,20 @@ const authSuccess = (token, userId) => {
   };
 };
 
+export const authLogout = () => {
+  return {
+    type: actionTypes.AUTH_LOGOUT
+  };
+};
+
+const checkAuthTimeout = expiresIn => {
+  return dispatch => {
+    setTimeout(() => {
+      dispatch(authLogout);
+    }, expiresIn * 1000);
+  };
+};
+
 export const auth = (email, password, method) => {
   return dispatch => {
     dispatch(authStart());
@@ -43,7 +57,7 @@ export const auth = (email, password, method) => {
           dispatch(authSuccess(token, userId));
         })
         .catch(error => {
-          dispatch(authFail(error));
+          dispatch(authFail(error.response.data.error));
         });
     } else {
       Axios.post(signInURL, {
@@ -55,9 +69,10 @@ export const auth = (email, password, method) => {
           const token = response.data.idToken;
           const userId = response.data.localId;
           dispatch(authSuccess(token, userId));
+          dispatch(checkAuthTimeout(response.data.expiresIn));
         })
         .catch(error => {
-          dispatch(authFail(error));
+          dispatch(authFail(error.response.data.error));
         });
     }
   };
