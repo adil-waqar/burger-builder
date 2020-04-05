@@ -71,7 +71,7 @@ class BurgerBuilder extends Component {
             />
           ) : null}
         </Modal>
-        {this.props.ingredients ? (
+        {this.props.ingredients && !this.props.loading ? (
           <Fragment>
             <Burger ingredients={this.props.ingredients} />
             <BuildControls
@@ -101,7 +101,8 @@ const mapStateToProps = state => {
     ingredients: state.burgerBuilder.ingredients,
     totalPrice: state.burgerBuilder.totalPrice,
     error: state.burgerBuilder.error,
-    isAuthenticated: state.auth.token !== null
+    isAuthenticated: state.auth.token !== null,
+    loading: state.auth.loading
   };
 };
 

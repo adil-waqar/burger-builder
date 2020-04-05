@@ -52,7 +52,13 @@ export const purchaseBurger = order => {
 
 export const getOrders = () => {
   return (dispatch, getState) => {
-    Axios.get('/orders.json?auth=' + getState().auth.token)
+    let url =
+      '/orders.json?auth=' +
+      getState().auth.token +
+      '&orderBy="userId"&equalTo="' +
+      getState().auth.userId +
+      '"';
+    Axios.get(url)
       .then(({ data }) => {
         if (!data) {
           dispatch(getOrdersSuccess([]));

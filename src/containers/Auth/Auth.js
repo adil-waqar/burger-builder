@@ -120,10 +120,16 @@ export class Auth extends Component {
       errorMessage = <p>{this.props.error.message}</p>;
     }
 
+    let redirect = null;
+    if (this.props.isAuthenticaed) {
+      if (this.props.totalPrice > 4) redirect = <Redirect to="/checkout" />;
+      else redirect = <Redirect to="/" />;
+    }
+
     return (
       <div className={classes.Form}>
         {errorMessage}
-        {this.props.isAuthenticaed ? <Redirect to="/" /> : null}
+        {redirect}
         {this.props.loading ? (
           <Spinner />
         ) : (
@@ -152,7 +158,8 @@ const mapStateToProps = state => {
   return {
     loading: state.auth.loading,
     error: state.auth.error,
-    isAuthenticaed: state.auth.token !== null
+    isAuthenticaed: state.auth.token !== null,
+    totalPrice: state.burgerBuilder.totalPrice
   };
 };
 
